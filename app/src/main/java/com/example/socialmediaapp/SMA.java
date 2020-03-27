@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,8 +25,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -36,9 +39,10 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
-public class SMA extends AppCompatActivity {
+public class SMA extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private ListView mUsersListView;
     private Button mBtnPostImage;
@@ -49,6 +53,9 @@ public class SMA extends AppCompatActivity {
     private String imageIdentifier;
     private ArrayList<String> usernames;
     private ArrayAdapter adapter;
+    private ArrayList<String> uids;
+    private String imageDownloadLink;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +67,12 @@ public class SMA extends AppCompatActivity {
         mEdtDesc = findViewById(R.id.edtDesc);
         mUserImage = findViewById(R.id.imgViewId);
         mAuth = FirebaseAuth.getInstance();
+        uids = new ArrayList<>();
         usernames = new ArrayList<>();
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, usernames);
 
         mUsersListView.setAdapter(adapter);
+        mUsersListView.setOnItemClickListener(this);
 
         mUserImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +154,7 @@ public class SMA extends AppCompatActivity {
         }
     }
 
-    private  void uploadImageToServer() {
+    private void uploadImageToServer() {
 
         if (mBitmap != null) {
 
@@ -176,6 +185,7 @@ public class SMA extends AppCompatActivity {
                     FirebaseDatabase.getInstance().getReference().child("my_users").addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                            uids.add(dataSnapshot.getKey());
                             String username = (String) dataSnapshot.child("username").getValue();
                             usernames.add(username);
                             adapter.notifyDataSetChanged();
@@ -201,8 +211,31 @@ public class SMA extends AppCompatActivity {
 
                         }
                     });
+
+                    taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if (task.isSuccessful()){
+                                imageDownloadLink = task.getResult().toString();
+                            }
+                        }
+                    });
+
                 }
             });
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        HashMap<String, String> dataMap = new HashMap<>();
+        dataMap.put("fromWho", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        dataMap.put("imageIdentifier", imageIdentifier);
+        dataMap.put("imageLink", imageDownloadLink);
+        dataMap.put("desc", mEdtDesc.getText().toString());
+        FirebaseDatabase.getInstance().getReference().child("my_users").child(uids.get(position)).child("received_posts").push().setValue(dataMap);
+
+
     }
 }

@@ -95,6 +95,9 @@ public class SMA extends AppCompatActivity implements AdapterView.OnItemClickLis
             case R.id.logoutItem:
                 logout();
                 break;
+            case R.id.viewPostSentToMe:
+                Intent intent = new Intent(SMA.this, ViewPosts.class);
+                startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -234,7 +237,12 @@ public class SMA extends AppCompatActivity implements AdapterView.OnItemClickLis
         dataMap.put("imageIdentifier", imageIdentifier);
         dataMap.put("imageLink", imageDownloadLink);
         dataMap.put("desc", mEdtDesc.getText().toString());
-        FirebaseDatabase.getInstance().getReference().child("my_users").child(uids.get(position)).child("received_posts").push().setValue(dataMap);
+        FirebaseDatabase.getInstance().getReference().child("my_users").child(uids.get(position)).child("received_posts").push().setValue(dataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Toast.makeText(SMA.this, "Post Sent SUccessfully", Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
     }

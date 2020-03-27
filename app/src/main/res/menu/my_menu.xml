@@ -5,4 +5,9 @@
         android:id="@+id/logoutItem"
         android:title="Logout"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/viewPostSentToMe"
+        android:title="Posts To Me"
+        app:showAsAction="never"/>
 </menu>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ViewPosts"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtViewPostSentToMe"
+        android:layout_marginTop="10dp"
+        android:text="Posts Sent To Me"
+        android:textAllCaps="false"
+        android:textAlignment="center"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:src="@drawable/lion"
+        android:id="@+id/receivedImage"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:id="@+id/receivedDesc"
+        android:gravity="center"/>
+
+    <ListView
+        android:layout_width="409dp"
+        android:layout_height="700dp"
+        tools:layout_editor_absoluteY="30dp"
+        android:id="@+id/postsListView"/>
+
+</LinearLayout>
